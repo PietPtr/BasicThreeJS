@@ -1,4 +1,4 @@
-var seed = 1337
+var seed = Math.random() * 51413;
 
 function random() {
     var x = Math.sin(seed++) * 10000;
