@@ -16,18 +16,19 @@ var onRenderFcts = [];
 // Initialise scene and camera
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 1000);
-camera.position.x = 40;
-camera.position.y = 20;
+camera.position.x = 0;
+camera.position.z = 40;
 var controls = new THREE.OrbitControls(camera);
 
 //////////////////////////////////////////////////////////////////////////////////
 //		Scene setup
 //////////////////////////////////////////////////////////////////////////////////
 
-var geometry = new THREE.SphereGeometry(10, 16, 16);
-var material = new THREE.MeshBasicMaterial( {color: 0xff6400, wireframe: true} );
+var geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
+var material = new THREE.MeshPhongMaterial( {color: 0xff6400, wireframe: false, shininess: 10} );
 var sphere = new THREE.Mesh(geometry, material);
 scene.add(sphere);
+
 
 //////////////////////////////////////////////////////////////////////////////////
 //		Rendering
