@@ -24,6 +24,10 @@ var controls = new THREE.OrbitControls(camera);
 //		Scene setup
 //////////////////////////////////////////////////////////////////////////////////
 
+// White directional light at half intensity shining from the top.
+var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+scene.add( directionalLight );
+
 var geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
 var material = new THREE.MeshPhongMaterial( {color: 0xff6400, wireframe: false, shininess: 10} );
 var sphere = new THREE.Mesh(geometry, material);
