@@ -1,9 +1,188 @@
 <!DOCTYPE html>
-<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-<script src='vendor/three.js/build/three.min.js'></script>
-<script src='vendor/three.js/examples/js/controls/OrbitControls.js'></script>
-<script src='vendor/three.js/examples/js/controls/FirstPersonControls.js'></script>
-<script src='util.js'></script>
-<script src='consts.js'></script>
-<div style='position: absolute; top: 0px; width: 100%;font-family:arial; font-weight: bolder; padding-top: 5px;'>
-<body style='margin: 0px; overflow: hidden; text-align:center;'><script src='main.js'></script></body>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <script src='consts.js'></script>
+    <script src='vendor/three.js/build/three.min.js'></script>
+    <script src='vendor/three.js/examples/js/loaders/FBXLoader.js'></script>
+    <script src='vendor/three.js/examples/js/loaders/TDSLoader.js'></script>
+    <script src='vendor/three.js/examples/js/loaders/OBJLoader.js'></script>
+    <script src='vendor/three.js/examples/js/loaders/MTLLoader.js'></script>
+    <script src='vendor/three.js/examples/js/Gyroscope.js'></script>
+    <script src='controls/PointerLockControls.js'></script>
+    <script src='controls/OrbitControls.js'></script>
+    <script src='util.js'></script>
+    <script src='systems/Clock.js'></script>
+    <script src='systems/World.js'></script>
+    <script src='systems/ResourceManager.js'></script>
+    <script src='gameloops/Gameloop.js'></script>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:100,300" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet">
+    <style>
+    #interactablePrompt {
+    	position: absolute;
+    	top: 70%;
+    	width: 100%;
+    	text-align: center;
+    	z-index: 100;
+    	display:block;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 300;
+        font-size: 50px;
+        transition: opacity 0.3s;
+        opacity: 0;
+        text-shadow: -1px 0 #333, 0 1px #333, 1px 0 #333, 0 -1px #333;
+        color: white;
+    }
+
+    .textbox {
+        position: absolute;
+        font-family: 'Montserrat', sans-serif;
+        background-color: #ffffff;
+        border-radius: 40px;
+        text-align: left;
+        font-weight: 300;
+        font-size: 40px;
+        overflow: hidden;
+        padding-left: 3%;
+        padding-right: 3%;
+    }
+
+    #box {
+        top: 105%;
+        left: 10%;
+        height: 20%;
+        width: 60%;
+        z-index: 101;
+        transition: 0.2s;
+        padding-left: 10%;
+        padding-right: 10%;
+    }
+    #boxText {
+        top: 0;
+        margin-top: 10px;
+        transition: 0.2s;
+    }
+    #choices {
+        right: 105%;
+        bottom: 75%;
+    }
+
+
+    #spacecraftControlCanvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 102;
+        visibility: hidden;
+    }
+    #spacecraftControlDiv {
+        width: 100%;
+        height: 100%;
+        display: none;
+        z-index: 103;
+        position: absolute;
+        background-color: #000000;
+    }
+    .textmenu {
+        background-color: #111111;
+        color: #00ff00;
+        position: absolute;
+        z-index: 105;
+        text-align: left;
+        font-family: 'Share Tech Mono', monospace;
+        border-radius: 0.2em;
+        border-color: #337766;
+        border-style: outset;
+    }
+    #dataMonitor {
+        left: 70%;
+        width: 25%;
+        min-width: 450px;
+        height: 44%;
+        padding: 0.2%;
+        margin: 2%;
+        font-size: 15px;
+    }
+    #secondaryMonitor {
+        top: 47%;
+        left: 70%;
+        width: 25%;
+        min-width: 450px;
+        height: 44%;
+        padding: 0.2%;
+        margin: 2%;
+        font-size: 20px;
+        border-color: #11ff33;
+    }
+    #mapViewer {
+        left: 0%;
+        width: 68%;
+        height: 92%;
+        margin: 2%;
+        overflow: hidden;
+    }
+    #largeMonitorText {
+        position: absolute;
+        top: 0%;
+    }
+    #pauseMenu {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0);
+        transition: background-color 0.2s;
+        z-index: 1003;
+    }
+    #selection {
+        left: -25%;
+        top: 5%;
+        width: 15%;
+        height: 90%;
+        background: rgba(255, 255, 255, 255);
+        transition: left 0.2s;
+    }
+    </style>
+</head>
+<body style='margin: 0px; overflow: hidden; text-align:center;'>
+    <div style='position: absolute; top: 0px; width: 100%;font-family:arial; font-weight: bolder; padding-top: 5px;'></div>
+
+    <!-- Pause menu -->
+
+    <div id="pauseMenu">
+        <div id="selection" class="textbox">
+        </div>
+    </div>
+
+    <!-- Openworld -->
+
+    <div id="interactablePrompt">
+        <h id="promptName"></h>
+        <p id="promptText" style="font-size:25px"></p>
+    </div>
+
+    <div id="box" class="textbox">
+        <p id="boxText"></p>
+    </div>
+
+    <!-- SpaceraftControl -->
+
+    <div id="spacecraftControlDiv">
+        <div class="textmenu crt" id="mapViewer"></div>
+        <div class="textmenu crt" id="dataMonitor"></div>
+        <div class="textmenu crt" id="secondaryMonitor" >
+            <div id="monitorSelector">
+            </div>
+            <div id="distanceMonitor" style="visibility: hidden; height: 93%">
+                <canvas id="distanceCanvas" ></canvas>
+            </div>
+            <div id="radio">
+            </div>
+            <div id="timeAccelerator">
+            </div>
+        </div>
+    </div>
+
+    <script src='main.js'></script>
+</body>
+</html>
